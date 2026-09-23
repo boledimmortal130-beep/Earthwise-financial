@@ -13,6 +13,7 @@
             --card-bg: rgba(255,255,255,0.08);
             --text: #ffffff;
             --border: rgba(255,255,255,0.15);
+            --muted: #94a3b8;
         }
 
         body {
@@ -569,7 +570,6 @@
                                 <th>No</th>
                                 <th>Nama Lengkap</th>
                                 <th>WhatsApp</th>
-                                <th>Waktu Otomatis</th>
                                 <th>Hari</th>
                                 <th>Jam</th>
                                 <th>Tanggal</th>
@@ -598,6 +598,10 @@
         <img id="modal-img" src="" alt="Foto Bukti">
     </div>
 
+    <footer style="text-align:center; padding:20px 10px; color:var(--muted); font-size:11px; opacity:0.85; margin-top:10px;">
+        © 2026 Earthwise Financial — Tabungan Digital
+    </footer>
+
     <script type="module">
         // ===== FIREBASE IMPORTS =====
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
@@ -618,6 +622,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // ===== KODE RAHASIA KHUSUS ADMIN (BAWAAN) =====
+        const DEFAULT_SECRET_REGISTRATION = "aliciapitalaurasalsabila";
+
         // ===== STATE =====
         let currentUser = null;
         let allUsers = [];
@@ -628,14 +635,14 @@
             bgColor: '#0f172a',
             accentColor: '#38bdf8',
             userSecretCode: 'SAVE123',
-            adminSecretCode: 'ADMIN123',
+            adminSecretCode: DEFAULT_SECRET_REGISTRATION,
             countMode: 'auto',
             manualUserCount: 10
         };
 
         // ===== HELPER =====
         const $ = (id) => document.getElementById(id);
-        const formatRupiah = (num) => 'Rp' + Number(num).toLocaleString('id-ID');
+        const formatRupiah = (num) => 'Rp' + Number(num || 0).toLocaleString('id-ID');
 
         // Format waktu Indonesia
         const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -654,21 +661,22 @@
                 jam: `${hours}:${minutes}:${seconds}`,
                 tanggal: `${date}`,
                 bulan: month,
-                tahun: `${year}`,
-                full: `${date} ${month} ${year} ${hours}:${minutes}:${seconds}`
+                tahun: `${year}`
             };
         }
 
         // ===== FIREBASE SUBSCRIPTIONS =====
         function loadData() {
             onValue(ref(db, 'users'), (snap) => {
-                allUsers = snap.val() ? Object.values(snap.val()) : [];
+                const raw = snap.val();
+                allUsers = raw ? Object.entries(raw).map(([id, data]) => ({ id, ...data })) : [];
                 syncCurrentUser();
                 renderAll();
             });
 
             onValue(ref(db, 'transactions'), (snap) => {
-                allTxs = snap.val() ? Object.values(snap.val()) : [];
+                const raw = snap.val();
+                allTxs = raw ? Object.entries(raw).map(([id, data]) => ({ id, ...data })) : [];
                 renderAll();
             });
 
@@ -686,7 +694,7 @@
             $('set-bg').value = settingsData.bgColor || defaultSettings.bgColor;
             $('set-accent').value = settingsData.accentColor || defaultSettings.accentColor;
             $('set-user-code').value = settingsData.userSecretCode || defaultSettings.userSecretCode;
-            $('set-admin-code').value = settingsData.adminSecretCode || defaultSettings.adminSecretCode;
+            $('set-admin-code').value = settingsData.adminSecretCode || DEFAULT_SECRET_REGISTRATION;
             $('set-count-mode').value = settingsData.countMode || 'auto';
             $('set-manual-count').value = settingsData.manualUserCount || 10;
             $('manual-count-wrap').classList.toggle('hidden', $('set-count-mode').value !== 'manual');
@@ -747,8 +755,8 @@
                 return;
             }
 
-            const expectedCode = role === 'admin' 
-                ? (settingsData.adminSecretCode || 'ADMIN123') 
+            const expectedCode = role === 'admin'
+                ? (settingsData.adminSecretCode || DEFAULT_SECRET_REGISTRATION)
                 : (settingsData.userSecretCode || 'SAVE123');
 
             if (code !== expectedCode) {
@@ -761,12 +769,7 @@
                 return;
             }
 
-            const newUser = {
-                name,
-                password,
-                wa,
-                role
-            };
+            const newUser = { name, password, wa, role };
 
             push(ref(db, 'users'), newUser).then(() => {
                 $('auth-error').innerText = 'Pendaftaran berhasil! Silakan masuk.';
@@ -785,7 +788,9 @@
                 return;
             }
 
-            const found = allUsers.find(u => u.name.toLowerCase() === name.toLowerCase() && u.password === password);
+            const found = allUsers.find(u =>
+                u.name.toLowerCase() === name.toLowerCase() && u.password === password
+            );
 
             if (!found) {
                 $('auth-error').innerText = 'Nama / kata sandi salah!';
@@ -809,9 +814,11 @@
                 currentUser = null;
                 return;
             }
-
             const saved = JSON.parse(stored);
-            const found = allUsers.find(u => u.id === saved.id || (u.name === saved.name && u.password === saved.password));
+            const found = allUsers.find(u =>
+                u.id === saved.id ||
+                (u.name === saved.name && u.password === saved.password)
+            );
             currentUser = found || null;
         }
 
@@ -870,7 +877,14 @@
             }
 
             const finish = (photo) => {
-                const data = { name, wa, amount, status, photo: photo || null, timestamp: Date.now() };
+                const data = {
+                    name,
+                    wa,
+                    amount,
+                    status,
+                    photo: photo || null,
+                    timestamp: Date.now()
+                };
 
                 if (id) {
                     update(ref(db, 'transactions/' + id), data);
@@ -902,8 +916,8 @@
             $('admin-txn-wa').value = txn.wa || '';
             $('admin-txn-amount').value = txn.amount;
             $('admin-txn-status').value = txn.status;
-            $('admin-preview').innerHTML = txn.photo 
-                ? `<img src="${txn.photo}" class="img-thumb" style="height:60px;">` 
+            $('admin-preview').innerHTML = txn.photo
+                ? `<img src="${txn.photo}" class="img-thumb" style="height:60px;">`
                 : '<em>Tidak ada foto</em>';
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -922,7 +936,7 @@
         }
 
         function sendWa(wa, name, status, amount) {
-            const message = `Halo *${name}*, transaksi *${status}* sebesar *Rp ${Number(amount).toLocaleString('id-ID')}* telah tercatat di *Tabungan Earthwise Financial*.\nTerima kasih.`;
+            const message = `Halo *${name}*, transaksi *${status}* sebesar *Rp ${Number(amount).toLocaleString('id-ID')}* telah tercatat di *Tabungan Earthwise Financial*.\n\nTerima kasih.`;
             window.open(`https://wa.me/${wa}?text=${encodeURIComponent(message)}`, '_blank');
         }
 
@@ -955,7 +969,6 @@
         function renderUserDashboard() {
             $('user-name').innerText = currentUser.name;
 
-            // Saldo user sendiri
             const myTxs = allTxs.filter(t => t.name.toLowerCase() === currentUser.name.toLowerCase());
             const myTotalSimpan = myTxs.filter(t => t.status === 'menabung').reduce((a,b) => a + b.amount, 0);
             const myTotalTarik = myTxs.filter(t => t.status === 'menarik').reduce((a,b) => a + b.amount, 0);
@@ -963,7 +976,6 @@
             $('user-total-simpan').innerText = formatRupiah(myTotalSimpan);
             $('user-total-tarik').innerText = formatRupiah(myTotalTarik);
 
-            // Total global
             const semuaSimpan = allTxs.filter(t => t.status === 'menabung').reduce((a,b) => a + b.amount, 0);
             const semuaTarik = allTxs.filter(t => t.status === 'menarik').reduce((a,b) => a + b.amount, 0);
             const totalSaldo = semuaSimpan - semuaTarik;
@@ -994,7 +1006,9 @@
             if (settingsData.countMode === 'manual') {
                 return settingsData.manualUserCount;
             }
-            const uniqueNames = new Set(allTxs.filter(t => t.status === 'menabung').map(t => t.name.toLowerCase()));
+            const uniqueNames = new Set(
+                allTxs.filter(t => t.status === 'menabung').map(t => t.name.toLowerCase())
+            );
             return uniqueNames.size;
         }
 
@@ -1003,7 +1017,7 @@
             tbody.innerHTML = '';
 
             if (reversed.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Belum ada transaksi.</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 12 : 10}" style="text-align:center;">Belum ada transaksi.</td></tr>`;
                 return;
             }
 
@@ -1014,7 +1028,7 @@
                 const statusClass = txn.status === 'menabung' ? 'status-simpan' : 'status-tarik';
                 const statusText = txn.status === 'menabung' ? 'Menabung' : 'Menarik';
 
-                const photoHtml = txn.photo 
+                const photoHtml = txn.photo
                     ? `<img src="${txn.photo}" class="img-thumb" onclick="openPhoto('${txn.photo}')" alt="Bukti">`
                     : '—';
 
