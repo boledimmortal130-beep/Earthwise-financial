@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabungan Earthwise Financial</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        :root {
+            --bg: #0f172a;
+            --accent: #38bdf8;
+            --card-bg: rgba(255,255,255,0.08);
+            --text: #ffffff;
+            --border: rgba(255,255,255,0.15);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            min-height: 100vh;
+            transition: background 0.3s;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Auth */
+        #auth-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 35px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        .auth-card h1 {
+            font-size: 26px;
+            text-align: center;
+            margin-bottom: 5px;
+            color: var(--accent);
+        }
+
+        .auth-card p.subtitle {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 30px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: #081220;
+        }
+
+        .form-group { margin-bottom: 18px; }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            outline: none;
+        }
+
+        input:focus, select:focus { border-color: var(--accent); }
+
+        input::placeholder { color: rgba(255,255,255,0.4); }
+
+        select option { background:#111; color:#fff; }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            background: var(--accent);
+            color: #081220;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-block;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-danger { background: #f87171; color:#4c0519; }
+        .btn-success { background: #34d399; color:#064e3b; }
+        .btn-sm { padding: 7px 14px; font-size: 12px; margin: 2px; }
+
+        /* Dashboard */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .topbar h2 { color: var(--accent); font-size:20px; }
+
+        .topbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: #081220;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card h4 { font-size: 13px; opacity: 0.8; margin-bottom: 10px; }
+        .card .value { font-size: 26px; font-weight: 700; color: var(--accent); }
+
+        .section {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .section h3 { margin-bottom: 15px; color: var(--accent); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(0,0,0,0.2);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        tr:hover { background: rgba(255,255,255,0.03); }
+
+        .img-thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+
+        .status-simpan {
+            background: #dcfce7;
+            color: #14532d;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .status-tarik {
+            background: #fee2e2;
+            color: #7f1d1d;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.open { display: flex; }
+        .modal img { max-width: 95%; max-height: 95%; border-radius: 12px; }
+        .modal .close {
+            position: absolute;
+            top: 25px;
+            right: 30px;
+            font-size: 36px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .modal .close:hover { color: var(--accent); }
+
+        /* Settings */
+        .setting-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .setting-item {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .setting-item label { margin-bottom: 8px; display: block; }
+
+        input[type="color"] {
+            width: 100%;
+            height: 45px;
+            border-radius: 8px;
+            padding: 5px;
+            background: #fff;
+        }
+
+        /* Print */
+        @media print {
+            body { background:#fff !important; color:#000 !important; }
+            .no-print, .topbar, .cards, .section > form, .actions { display: none !important; }
+            .container { max-width: 100%; padding: 0; }
+            table { color:#000; border:1px solid #000; }
+            th, td { color:#000; border-bottom:1px solid #000; }
+            .section { background:#fff; border:none; }
+        }
+
+        @media (max-width: 600px) {
+            .topbar h2 { font-size: 16px; }
+            .auth-card { padding: 25px; }
+            table { font-size: 11px; }
+            th, td { padding: 6px 4px; }
+            .btn { padding: 8px 16px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUTH PAGE -->
+    <div id="auth-page">
+        <div class="auth-card">
+            <h1>🌳 Earthwise Financial</h1>
+            <p class="subtitle">Tabungan Cerdas, Tumbuh Bersama</p>
+            <div class="tabs">
+                <div class="tab active" id="tab-login" onclick="showAuthTab('login')">Masuk</div>
+                <div class="tab" id="tab-register" onclick="showAuthTab('register')">Daftar</div>
+            </div>
+
+            <div id="login-form">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="login-name" placeholder="Masukkan nama">
+                </div>
+                <div class="form-group">
+                    <label>Kata Sandi</label>
+                    <input type="password" id="login-password" placeholder="Masukkan kata sandi">
+                </div>
+                <button class="btn" style="width:100%;" onclick="login()">Masuk</button>
+            </div>
+
+            <div id="register-form" class="hidden">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="reg-name" placeholder="Nama lengkap">
+                </div>
+                <div class="form-group">
+                    <label>Kata Sandi</label>
+                    <input type="password" id="reg-password" placeholder="Minimal 4 karakter">
+                </div>
+                <div class="form-group">
+                    <label>Nomor WhatsApp</label>
+                    <input type="text" id="reg-wa" placeholder="contoh: 6281234567890">
+                </div>
+                <div class="form-group">
+                    <label>Kode Khusus / Kode Rahasia</label>
+                    <input type="text" id="reg-code" placeholder="Kode pendaftaran">
+                </div>
+                <div class="form-group">
+                    <label>Daftar Sebagai</label>
+                    <select id="reg-role">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button class="btn" style="width:100%;" onclick="register()">Daftar</button>
+            </div>
+
+            <p id="auth-error" style="color:#f87171; text-align:center; margin-top:15px; font-size:13px;"></p>
+        </div>
+    </div>
+
+    <!-- USER DASHBOARD -->
+    <div id="user-dashboard" class="hidden">
+        <div class="topbar no-print">
+            <h2>🌳 User Dashboard</h2>
+            <div class="user-info">
+                <span>👤 <span id="user-name"></span></span>
+                <span class="badge">User</span>
+                <button class="btn btn-outline btn-sm" onclick="logout()">Keluar</button>
+            </div>
+        </div>
+        <div class="container">
+            <div class="cards">
+                <div class="card">
+                    <h4>Sisa Saldo Anda</h4>
+                    <div class="value" id="user-saldo">Rp0</div>
+                </div>
+                <div class="card">
+                    <h4>Total Tabungan Saya</h4>
+                    <div class="value" id="user-total-simpan">Rp0</div>
+                </div>
+                <div class="card">
+                    <h4>Total Penarikan Saya</h4>
+                    <div class="value" id="user-total-tarik">Rp0</div>
+                </div>
+                <div class="card">
+                    <h4>Total User Menabung</h4>
+                    <div class="value" id="user-total-menabung">0</div>
+                </div>
+            </div>
+
+            <!-- Form transaksi user -->
+            <div class="section no-print">
+                <h3>➕ Tambah Transaksi</h3>
+                <form onsubmit="event.preventDefault(); createUserTransaction()" style="display:flex; flex-wrap:wrap; gap:15px; align-items:end;">
+                    <div class="form-group" style="flex:1; min-width:140px;">
+                        <label>Status</label>
+                        <select id="user-txn-type">
+                            <option value="menabung">Menabung</option>
+                            <option value="menarik">Menarik</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:140px;">
+                        <label>Nilai (Rp)</label>
+                        <input type="number" id="user-txn-amount" min="1000" step="500" placeholder="10000" required>
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:200px;">
+                        <label>Bukti Foto</label>
+                        <input type="file" id="user-txn-photo" accept="image/*">
+                    </div>
+                    <button class="btn btn-success" type="submit">Simpan Transaksi</button>
+                </form>
+            </div>
+
+            <!-- Tabel umum -->
+            <div class="section printable-table">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+                    <h3>📋 Data Transaksi Umum</h3>
+                    <button class="btn btn-outline btn-sm no-print" onclick="window.print()">🖨️ Export PDF</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table id="user-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Lengkap</th>
+                                <th>Hari</th>
+                                <th>Jam</th>
+                                <th>Tanggal</th>
+                                <th>Bulan</th>
+                                <th>Tahun</th>
+                                <th>Bukti Foto</th>
+                                <th>Status</th>
+                                <th>Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-tbody"></tbody>
+                    </table>
+                </div>
+                <div style="margin-top:15px; font-size:14px;">
+                    <strong>Total Uang (Saldo):</strong> <span id="total-all-saldo"></span><br>
+                    <strong>Total Seluruh Uang (Setoran):</strong> <span id="total-all-simpan"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="admin-dashboard" class="hidden">
+        <div class="topbar no-print">
+            <h2>🌳 Admin Dashboard</h2>
+            <div class="user-info">
+                <span>👤 <span id="admin-name"></span></span>
+                <span class="badge">Admin</span>
+                <button class="btn btn-outline btn-sm" onclick="logout()">Keluar</button>
+            </div>
+        </div>
+        <div class="container">
+            <!-- Statistik -->
+            <div class="cards">
+                <div class="card">
+                    <h4>Total User Terdaftar</h4>
+                    <div class="value" id="admin-total-user">0</div>
+                </div>
+                <div class="card">
+                    <h4>Total User Menabung</h4>
+                    <div class="value" id="admin-total-menabung">0</div>
+                </div>
+                <div class="card">
+                    <h4>Total Uang (Saldo)</h4>
+                    <div class="value" id="admin-total-saldo">Rp0</div>
+                </div>
+                <div class="card">
+                    <h4>Total Seluruh Uang (Setoran)</h4>
+                    <div class="value" id="admin-total-seluruh">Rp0</div>
+                </div>
+            </div>
+
+            <!-- Pengaturan -->
+            <div class="section no-print">
+                <h3>⚙️ Pengaturan Menyeluruh</h3>
+                <div class="setting-grid">
+                    <div class="setting-item">
+                        <label>Warna Background</label>
+                        <input type="color" id="set-bg" value="#0f172a" onchange="applySettings()">
+                    </div>
+                    <div class="setting-item">
+                        <label>Warna Aksen</label>
+                        <input type="color" id="set-accent" value="#38bdf8" onchange="applySettings()">
+                        <button class="btn btn-sm btn-outline" style="margin-top:8px;" onclick="randomColor()">🎲 Acak Otomatis</button>
+                    </div>
+                    <div class="setting-item">
+                        <label>Kode Rahasia User</label>
+                        <input type="text" id="set-user-code">
+                    </div>
+                    <div class="setting-item">
+                        <label>Kode Rahasia Admin</label>
+                        <input type="text" id="set-admin-code">
+                    </div>
+                    <div class="setting-item">
+                        <label>Mode Jumlah User</label>
+                        <select id="set-count-mode">
+                            <option value="auto">Otomatis</option>
+                            <option value="manual">Manual</option>
+                        </select>
+                    </div>
+                    <div class="setting-item hidden" id="manual-count-wrap">
+                        <label>Jumlah User Manual</label>
+                        <input type="number" id="set-manual-count" min="0">
+                    </div>
+                </div>
+                <button class="btn" style="margin-top:15px;" onclick="saveSettings()">💾 Simpan Pengaturan</button>
+            </div>
+
+            <!-- Form CRUD admin -->
+            <div class="section no-print">
+                <h3>➕ Tambah / Edit Transaksi (Admin)</h3>
+                <form id="admin-form" onsubmit="event.preventDefault(); saveAdminTransaction()" style="display:flex; flex-wrap:wrap; gap:15px; align-items:end;">
+                    <input type="hidden" id="edit-id">
+                    <div class="form-group" style="flex:1; min-width:140px;">
+                        <label>Nama Lengkap</label>
+                        <input type="text" id="admin-txn-name" placeholder="Nama user" required>
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:130px;">
+                        <label>Nomor WhatsApp</label>
+                        <input type="text" id="admin-txn-wa" placeholder="6281234567890">
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:130px;">
+                        <label>Nilai Uang (Rp)</label>
+                        <input type="number" id="admin-txn-amount" min="0" step="500" required>
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:130px;">
+                        <label>Status</label>
+                        <select id="admin-txn-status">
+                            <option value="menabung">Menabung</option>
+                            <option value="menarik">Menarik</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:180px;">
+                        <label>Foto Bukti</label>
+                        <input type="file" id="admin-txn-photo" accept="image/*">
+                        <div id="admin-preview" style="margin-top:5px;"></div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-success" type="submit">💾 Simpan</button>
+                        <button class="btn btn-outline" type="button" onclick="resetEdit()">↩️ Reset</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabel Admin -->
+            <div class="section printable-table">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+                    <h3>📋 Kelola Data Transaksi</h3>
+                    <button class="btn btn-outline btn-sm no-print" onclick="window.print()">🖨️ Export PDF</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table id="admin-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Lengkap</th>
+                                <th>WhatsApp</th>
+                                <th>Waktu Otomatis</th>
+                                <th>Hari</th>
+                                <th>Jam</th>
+                                <th>Tanggal</th>
+                                <th>Bulan</th>
+                                <th>Tahun</th>
+                                <th>Foto</th>
+                                <th>Status</th>
+                                <th>Jumlah</th>
+                                <th class="no-print">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-tbody"></tbody>
+                    </table>
+                </div>
+                <div style="margin-top:15px; font-size:14px;">
+                    <strong>Total Uang (Saldo):</strong> <span id="admin-total-saldo-bawah"></span> &nbsp;|&nbsp;
+                    <strong>Total Seluruh Uang (Setoran):</strong> <span id="admin-total-seluruh-bawah"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Foto -->
+    <div class="modal" id="photo-modal" onclick="closePhoto(event)">
+        <span class="close" onclick="closePhoto()">&times;</span>
+        <img id="modal-img" src="" alt="Foto Bukti">
+    </div>
+
+    <script type="module">
+        // ===== FIREBASE IMPORTS =====
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+        import { getDatabase, ref, onValue, push, update, remove, set } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+        // ===== FIREBASE CONFIG =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7QJ2-OUALn2ocUoQHGrmoQ3d-RijN7lc",
+            authDomain: "earthwise-financial.firebaseapp.com",
+            databaseURL: "https://earthwise-financial-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "earthwise-financial",
+            storageBucket: "earthwise-financial.firebasestorage.app",
+            messagingSenderId: "927628486807",
+            appId: "1:927628486807:web:fdd087c6a5644fc9b9e1d2",
+            measurementId: "G-X2Q8QSWTB3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // ===== STATE =====
+        let currentUser = null;
+        let allUsers = [];
+        let allTxs = [];
+        let settingsData = {};
+
+        const defaultSettings = {
+            bgColor: '#0f172a',
+            accentColor: '#38bdf8',
+            userSecretCode: 'SAVE123',
+            adminSecretCode: 'ADMIN123',
+            countMode: 'auto',
+            manualUserCount: 10
+        };
+
+        // ===== HELPER =====
+        const $ = (id) => document.getElementById(id);
+        const formatRupiah = (num) => 'Rp' + Number(num).toLocaleString('id-ID');
+
+        // Format waktu Indonesia
+        const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+        const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+        function formatWaktu(ts) {
+            const d = new Date(ts);
+            const date = d.getDate();
+            const month = BULAN[d.getMonth()];
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2,'0');
+            const minutes = String(d.getMinutes()).padStart(2,'0');
+            const seconds = String(d.getSeconds()).padStart(2,'0');
+            return {
+                hari: HARI[d.getDay()],
+                jam: `${hours}:${minutes}:${seconds}`,
+                tanggal: `${date}`,
+                bulan: month,
+                tahun: `${year}`,
+                full: `${date} ${month} ${year} ${hours}:${minutes}:${seconds}`
+            };
+        }
+
+        // ===== FIREBASE SUBSCRIPTIONS =====
+        function loadData() {
+            onValue(ref(db, 'users'), (snap) => {
+                allUsers = snap.val() ? Object.values(snap.val()) : [];
+                syncCurrentUser();
+                renderAll();
+            });
+
+            onValue(ref(db, 'transactions'), (snap) => {
+                allTxs = snap.val() ? Object.values(snap.val()) : [];
+                renderAll();
+            });
+
+            onValue(ref(db, 'settings'), (snap) => {
+                settingsData = snap.val() || { ...defaultSettings };
+                applySettingsFromDB();
+                renderAll();
+            });
+        }
+
+        // ===== SETTINGS =====
+        function applySettingsFromDB() {
+            document.documentElement.style.setProperty('--bg', settingsData.bgColor || defaultSettings.bgColor);
+            document.documentElement.style.setProperty('--accent', settingsData.accentColor || defaultSettings.accentColor);
+            $('set-bg').value = settingsData.bgColor || defaultSettings.bgColor;
+            $('set-accent').value = settingsData.accentColor || defaultSettings.accentColor;
+            $('set-user-code').value = settingsData.userSecretCode || defaultSettings.userSecretCode;
+            $('set-admin-code').value = settingsData.adminSecretCode || defaultSettings.adminSecretCode;
+            $('set-count-mode').value = settingsData.countMode || 'auto';
+            $('set-manual-count').value = settingsData.manualUserCount || 10;
+            $('manual-count-wrap').classList.toggle('hidden', $('set-count-mode').value !== 'manual');
+        }
+
+        function saveSettings() {
+            const newSettings = {
+                bgColor: $('set-bg').value,
+                accentColor: $('set-accent').value,
+                userSecretCode: $('set-user-code').value.trim(),
+                adminSecretCode: $('set-admin-code').value.trim(),
+                countMode: $('set-count-mode').value,
+                manualUserCount: parseInt($('set-manual-count').value) || 0
+            };
+            set(ref(db, 'settings'), newSettings);
+            alert('Pengaturan berhasil disimpan!');
+        }
+
+        function applySettings() {
+            document.documentElement.style.setProperty('--bg', $('set-bg').value);
+            document.documentElement.style.setProperty('--accent', $('set-accent').value);
+        }
+
+        function randomColor() {
+            const randomHex = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+            $('set-bg').value = randomHex();
+            $('set-accent').value = randomHex();
+            applySettings();
+        }
+
+        $('set-count-mode').addEventListener('change', () => {
+            $('manual-count-wrap').classList.toggle('hidden', $('set-count-mode').value !== 'manual');
+        });
+
+        // ===== AUTH =====
+        function showAuthTab(tab) {
+            $('tab-login').classList.toggle('active', tab === 'login');
+            $('tab-register').classList.toggle('active', tab === 'register');
+            $('login-form').classList.toggle('hidden', tab !== 'login');
+            $('register-form').classList.toggle('hidden', tab !== 'register');
+            $('auth-error').innerText = '';
+        }
+
+        function register() {
+            const name = $('reg-name').value.trim();
+            const password = $('reg-password').value.trim();
+            const wa = $('reg-wa').value.trim();
+            const code = $('reg-code').value.trim();
+            const role = $('reg-role').value;
+
+            if (!name || !password || !wa || !code) {
+                $('auth-error').innerText = 'Semua field harus diisi!';
+                return;
+            }
+
+            if (password.length < 4) {
+                $('auth-error').innerText = 'Kata sandi minimal 4 karakter.';
+                return;
+            }
+
+            const expectedCode = role === 'admin' 
+                ? (settingsData.adminSecretCode || 'ADMIN123') 
+                : (settingsData.userSecretCode || 'SAVE123');
+
+            if (code !== expectedCode) {
+                $('auth-error').innerText = role === 'admin' ? 'Kode rahasia admin salah!' : 'Kode rahasia user salah!';
+                return;
+            }
+
+            if (allUsers.some(u => u.name.toLowerCase() === name.toLowerCase())) {
+                $('auth-error').innerText = 'Nama sudah terdaftar.';
+                return;
+            }
+
+            const newUser = {
+                name,
+                password,
+                wa,
+                role
+            };
+
+            push(ref(db, 'users'), newUser).then(() => {
+                $('auth-error').innerText = 'Pendaftaran berhasil! Silakan masuk.';
+                showAuthTab('login');
+            }).catch((err) => {
+                $('auth-error').innerText = 'Gagal mendaftar: ' + err.message;
+            });
+        }
+
+        function login() {
+            const name = $('login-name').value.trim();
+            const password = $('login-password').value.trim();
+
+            if (!name || !password) {
+                $('auth-error').innerText = 'Nama dan kata sandi wajib diisi!';
+                return;
+            }
+
+            const found = allUsers.find(u => u.name.toLowerCase() === name.toLowerCase() && u.password === password);
+
+            if (!found) {
+                $('auth-error').innerText = 'Nama / kata sandi salah!';
+                return;
+            }
+
+            currentUser = found;
+            localStorage.setItem('ew_current_user', JSON.stringify(found));
+            renderAll();
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('ew_current_user');
+            renderAll();
+        }
+
+        function syncCurrentUser() {
+            const stored = localStorage.getItem('ew_current_user');
+            if (!stored) {
+                currentUser = null;
+                return;
+            }
+
+            const saved = JSON.parse(stored);
+            const found = allUsers.find(u => u.id === saved.id || (u.name === saved.name && u.password === saved.password));
+            currentUser = found || null;
+        }
+
+        // ===== TRANSACTIONS =====
+        function createUserTransaction() {
+            if (!currentUser) return;
+
+            const type = $('user-txn-type').value;
+            const amount = parseInt($('user-txn-amount').value);
+            const photoInput = $('user-txn-photo');
+
+            if (!amount || amount <= 0) {
+                alert('Masukkan nilai uang yang valid!');
+                return;
+            }
+
+            const file = photoInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    saveTxn(currentUser.name, currentUser.wa, amount, type, reader.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                saveTxn(currentUser.name, currentUser.wa, amount, type, null);
+            }
+
+            photoInput.value = '';
+            $('user-txn-amount').value = '';
+        }
+
+        function saveTxn(name, wa, amount, status, photo) {
+            const txn = {
+                name,
+                wa,
+                amount,
+                status,
+                photo: photo || null,
+                timestamp: Date.now()
+            };
+            push(ref(db, 'transactions'), txn);
+        }
+
+        // ===== ADMIN CRUD =====
+        function saveAdminTransaction() {
+            const id = $('edit-id').value;
+            const name = $('admin-txn-name').value.trim();
+            const wa = $('admin-txn-wa').value.trim();
+            const amount = parseInt($('admin-txn-amount').value);
+            const status = $('admin-txn-status').value;
+            const photoInput = $('admin-txn-photo');
+
+            if (!name || !wa || !amount || amount <= 0) {
+                alert('Lengkapi semua field!');
+                return;
+            }
+
+            const finish = (photo) => {
+                const data = { name, wa, amount, status, photo: photo || null, timestamp: Date.now() };
+
+                if (id) {
+                    update(ref(db, 'transactions/' + id), data);
+                } else {
+                    push(ref(db, 'transactions'), data);
+                }
+
+                resetEdit();
+                $('admin-txn-photo').value = '';
+                $('admin-preview').innerHTML = '';
+            };
+
+            const file = photoInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => finish(reader.result);
+                reader.readAsDataURL(file);
+            } else {
+                finish(null);
+            }
+        }
+
+        function editTransaction(id) {
+            const txn = allTxs.find(t => t.id === id);
+            if (!txn) return;
+
+            $('edit-id').value = id;
+            $('admin-txn-name').value = txn.name;
+            $('admin-txn-wa').value = txn.wa || '';
+            $('admin-txn-amount').value = txn.amount;
+            $('admin-txn-status').value = txn.status;
+            $('admin-preview').innerHTML = txn.photo 
+                ? `<img src="${txn.photo}" class="img-thumb" style="height:60px;">` 
+                : '<em>Tidak ada foto</em>';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Yakin ingin menghapus transaksi ini?')) {
+                remove(ref(db, 'transactions/' + id));
+            }
+        }
+
+        function resetEdit() {
+            $('edit-id').value = '';
+            $('admin-form').reset();
+            $('admin-preview').innerHTML = '';
+        }
+
+        function sendWa(wa, name, status, amount) {
+            const message = `Halo *${name}*, transaksi *${status}* sebesar *Rp ${Number(amount).toLocaleString('id-ID')}* telah tercatat di *Tabungan Earthwise Financial*.\nTerima kasih.`;
+            window.open(`https://wa.me/${wa}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        // ===== RENDER =====
+        function renderAll() {
+            const authPage = $('auth-page');
+            const userDash = $('user-dashboard');
+            const adminDash = $('admin-dashboard');
+
+            if (!currentUser) {
+                authPage.classList.remove('hidden');
+                userDash.classList.add('hidden');
+                adminDash.classList.add('hidden');
+                return;
+            }
+
+            authPage.classList.add('hidden');
+
+            if (currentUser.role === 'admin') {
+                adminDash.classList.remove('hidden');
+                userDash.classList.add('hidden');
+                renderAdminDashboard();
+            } else {
+                userDash.classList.remove('hidden');
+                adminDash.classList.add('hidden');
+                renderUserDashboard();
+            }
+        }
+
+        function renderUserDashboard() {
+            $('user-name').innerText = currentUser.name;
+
+            // Saldo user sendiri
+            const myTxs = allTxs.filter(t => t.name.toLowerCase() === currentUser.name.toLowerCase());
+            const myTotalSimpan = myTxs.filter(t => t.status === 'menabung').reduce((a,b) => a + b.amount, 0);
+            const myTotalTarik = myTxs.filter(t => t.status === 'menarik').reduce((a,b) => a + b.amount, 0);
+            $('user-saldo').innerText = formatRupiah(myTotalSimpan - myTotalTarik);
+            $('user-total-simpan').innerText = formatRupiah(myTotalSimpan);
+            $('user-total-tarik').innerText = formatRupiah(myTotalTarik);
+
+            // Total global
+            const semuaSimpan = allTxs.filter(t => t.status === 'menabung').reduce((a,b) => a + b.amount, 0);
+            const semuaTarik = allTxs.filter(t => t.status === 'menarik').reduce((a,b) => a + b.amount, 0);
+            const totalSaldo = semuaSimpan - semuaTarik;
+            $('total-all-saldo').innerText = formatRupiah(totalSaldo);
+            $('total-all-simpan').innerText = formatRupiah(semuaSimpan);
+            $('user-total-menabung').innerText = getTotalUserMenabung();
+
+            renderTable($('user-tbody'), allTxs, false);
+        }
+
+        function renderAdminDashboard() {
+            $('admin-name').innerText = currentUser.name;
+            $('admin-total-user').innerText = allUsers.length;
+            $('admin-total-menabung').innerText = getTotalUserMenabung();
+
+            const semuaSimpan = allTxs.filter(t => t.status === 'menabung').reduce((a,b) => a + b.amount, 0);
+            const semuaTarik = allTxs.filter(t => t.status === 'menarik').reduce((a,b) => a + b.amount, 0);
+            const totalSaldo = semuaSimpan - semuaTarik;
+            $('admin-total-saldo').innerText = formatRupiah(totalSaldo);
+            $('admin-total-seluruh').innerText = formatRupiah(semuaSimpan);
+            $('admin-total-saldo-bawah').innerText = formatRupiah(totalSaldo);
+            $('admin-total-seluruh-bawah').innerText = formatRupiah(semuaSimpan);
+
+            renderTable($('admin-tbody'), allTxs, true);
+        }
+
+        function getTotalUserMenabung() {
+            if (settingsData.countMode === 'manual') {
+                return settingsData.manualUserCount;
+            }
+            const uniqueNames = new Set(allTxs.filter(t => t.status === 'menabung').map(t => t.name.toLowerCase()));
+            return uniqueNames.size;
+        }
+
+        function renderTable(tbody, data, isAdmin) {
+            const reversed = [...data].reverse();
+            tbody.innerHTML = '';
+
+            if (reversed.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Belum ada transaksi.</td></tr>';
+                return;
+            }
+
+            reversed.forEach((txn, index) => {
+                const w = formatWaktu(txn.timestamp);
+                const no = index + 1;
+
+                const statusClass = txn.status === 'menabung' ? 'status-simpan' : 'status-tarik';
+                const statusText = txn.status === 'menabung' ? 'Menabung' : 'Menarik';
+
+                const photoHtml = txn.photo 
+                    ? `<img src="${txn.photo}" class="img-thumb" onclick="openPhoto('${txn.photo}')" alt="Bukti">`
+                    : '—';
+
+                let actionHtml = '';
+                if (isAdmin) {
+                    actionHtml = `
+                        <td class="no-print actions">
+                            <button class="btn btn-sm btn-outline" onclick="editTransaction('${txn.id}')">✏️ Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteTransaction('${txn.id}')">🗑️ Hapus</button>
+                            <button class="btn btn-sm btn-success" onclick="sendWa('${txn.wa}','${txn.name}','${txn.status}',${txn.amount})">📱 WA</button>
+                        </td>
+                    `;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${no}</td>
+                    <td>${txn.name}</td>
+                    ${isAdmin ? `<td>${txn.wa || '-'}</td>` : ''}
+                    <td>${w.hari}</td>
+                    <td>${w.jam}</td>
+                    <td>${w.tanggal}</td>
+                    <td>${w.bulan}</td>
+                    <td>${w.tahun}</td>
+                    <td>${photoHtml}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td>${formatRupiah(txn.amount)}</td>
+                    ${actionHtml}
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ===== PHOTO MODAL =====
+        window.openPhoto = function(src) {
+            $('modal-img').src = src;
+            $('photo-modal').classList.add('open');
+        };
+
+        window.closePhoto = function(e) {
+            if (e && e.target !== $('photo-modal')) return;
+            $('photo-modal').classList.remove('open');
+        };
+
+        // ===== EXPOSE GLOBAL FUNCTIONS =====
+        window.showAuthTab = showAuthTab;
+        window.register = register;
+        window.login = login;
+        window.logout = logout;
+        window.saveSettings = saveSettings;
+        window.applySettings = applySettings;
+        window.randomColor = randomColor;
+        window.createUserTransaction = createUserTransaction;
+        window.saveAdminTransaction = saveAdminTransaction;
+        window.editTransaction = editTransaction;
+        window.deleteTransaction = deleteTransaction;
+        window.resetEdit = resetEdit;
+        window.sendWa = sendWa;
+
+        // ===== INITIAL LOAD =====
+        loadData();
+    </script>
+</body>
+</html>
